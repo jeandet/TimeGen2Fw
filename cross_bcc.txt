@@ -1,0 +1,12 @@
+[binaries]
+c = '/opt/bcc-2.0.1-gcc/bin/sparc-gaisler-elf-gcc'
+cpp = '/opt/bcc-2.0.1-gcc/bin/sparc-gaisler-elf-g++'
+ar = '/opt/bcc-2.0.1-gcc/bin/sparc-gaisler-elf-ar'
+strip = '/opt/bcc-2.0.1-gcc/bin/sparc-gaisler-elf-strip'
+
+
+[host_machine]
+system = 'bare'
+cpu_family = 'sparc'
+cpu = 'leon3'
+endian = 'big'
