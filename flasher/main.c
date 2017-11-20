@@ -55,13 +55,13 @@ int main(void)
     printf("Payload Start = %X\n", &_binary_payload_bin_start);
     printf("Payload End = %X\n", &_binary_payload_bin_end);
     printf("Payload Size = %d\n", &_binary_payload_bin_size);
-    unsigned char* test=(unsigned char*) (&_binary_payload_bin_start);
+    unsigned char* payload=(unsigned char*) (&_binary_payload_bin_start);
     int i=0;
     erase_chip(spim, &SF25FL128);
     printf("[->");
     for(i=0;i < &_binary_payload_bin_size; )
     {
-        write_page(spim, i, &(test[i]), &SF25FL128);
+        write_page(spim, i, payload+i, &SF25FL128);
         if(i%1024==0)
             printf("\b->");
         i+=256;
