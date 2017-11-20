@@ -5,6 +5,10 @@
 #include "bcc/ambapp.h"
 #include <stdint.h>
 
+extern int _binary_payload_bin_start;
+extern int _binary_payload_bin_end;
+extern int _binary_payload_bin_size;
+
 uint32_t match(void *info, uint32_t vendor, uint32_t device, uint32_t type, uint32_t depth, void *arg)
 {
 	if (type == AMBAPP_VISIT_APBSLAVE )
@@ -48,23 +52,21 @@ int main(void)
     spim->Control.FIELDS.ResetCore = 1;
     while(!spim->Status.FIELDS.Initialized);
     printf("SPIM initialized\n");
-    printf("FLASH ID = 0x%X\n", read_id(spim, &SF25FL128));
-    printf("FLASH CR2V reg = 0x%X\n", read_config_reg2(spim));
-    printf("FLASH CR1V reg = 0x%X\n", read_config_reg1(spim));
-    unsigned char test[256];
+    printf("Payload Start = %X\n", &_binary_payload_bin_start);
+    printf("Payload End = %X\n", &_binary_payload_bin_end);
+    printf("Payload Size = %d\n", &_binary_payload_bin_size);
+    unsigned char* test=(unsigned char*) (&_binary_payload_bin_start);
     int i=0;
-    for(i=0;i<256;i++)
+    erase_chip(spim, &SF25FL128);
+    printf("[->");
+    for(i=0;i < &_binary_payload_bin_size; )
     {
-        test[i]=i;
+        write_page(spim, i, &(test[i]), &SF25FL128);
+        if(i%1024==0)
+            printf("\b->");
+        i+=256;
     }
-    erase_sector(spim, 0, &SF25FL128);
-    write_page(spim, 0, test, &SF25FL128);
-    printf("Status Reg1 = 0x%X\n", read_status_reg1(spim, &SF25FL128));
-    printf("Status Reg2 = 0x%X\n", read_status_reg2(spim, &SF25FL128));
-    read_n(spim, 0, test, 256, &SF25FL128);
-    for(i=0;i<256;i++)
-    {
-        printf("Data @%d = 0x%X\n",i, test[i]);
-    }
+    printf("\b-]");
+    printf("done\n");
 	return 0;
 }

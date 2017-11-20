@@ -34,9 +34,10 @@ typedef struct device_id
 
 
 const device_id OpenCoresSPW = {.VID=0x08, .PID=0x131};
+const device_id SPIMCTRL = {.VID=0x01, .PID=0x45};
 
 typedef volatile struct  {
-     union Control{
+     union {
          struct   {
             uint32_t _:4;
             uint32_t desctablesize:4;
@@ -59,7 +60,7 @@ typedef volatile struct  {
         uint32_t Value;
     }Control;
 
-     union Status{
+     union {
          struct   {
             uint32_t _:19;
             uint32_t RxBufferEmpty:1;
@@ -80,7 +81,7 @@ typedef volatile struct  {
         uint32_t Value;
     }Status;
 
-     union TransmissionClockScaler{
+     union {
          struct   {
             uint32_t _:24;
             uint32_t TxClkDivFactor:8;
@@ -88,7 +89,7 @@ typedef volatile struct  {
         uint32_t Value;
     }TransmissionClockScaler;
 
-     union Timecode{
+     union {
          struct   {
             uint32_t __:15;
             uint32_t SendTimecode:1;
@@ -105,5 +106,53 @@ typedef volatile struct  {
 
 } OpenCoresSPW_t;
 
+typedef volatile struct  {
+     union {
+         struct   {
+            uint32_t _:24;
+            uint32_t ReadCMD:8;
+        }FIELDS;
+        uint32_t Value;
+    }Config;
+
+     union {
+         struct   {
+            uint32_t _:27;
+            uint32_t ResetCore:1;
+            uint32_t ChipSelect:1;
+            uint32_t EnableAltScaler:1;
+            uint32_t InterruptEnable:1;
+            uint32_t UserControl:1;
+        }FIELDS;
+        uint32_t Value;
+    }Control;
+
+     union {
+         struct   {
+	    uint32_t _:29;
+	    uint32_t Initialized:1;
+            uint32_t Busy:1;
+            uint32_t Done:1;
+        }FIELDS;
+        uint32_t Value;
+    }Status;
+
+     union {
+         struct   {
+            uint32_t _:24;
+            uint32_t Data:8;
+        }FIELDS;
+        uint32_t Value;
+    }Receive;
+
+    union {
+         struct   {
+            uint32_t _:24;
+            uint32_t Data:8;
+        }FIELDS;
+        uint32_t Value;
+    }Transmit;
+
+} SPIMCTRL_t;
 
 #endif
