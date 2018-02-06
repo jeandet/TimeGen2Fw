@@ -2,7 +2,7 @@ project('TimeGen2FW', 'c')
 
 inc = include_directories('include', '/opt/bcc-2.0.1-gcc/sparc-gaisler-elf/bsp/leon3/include/')
 
-fw = executable('tg2FW','src/main.c', include_directories : inc,
+fw = executable('tg2FW','src/main.c', 'src/peripherals.c', include_directories : inc,
 	c_args : ['-msoft-float']
 )
 
@@ -33,13 +33,13 @@ flash_payload_object = custom_target('payload.o',
   ]
 )
 
-flasher = executable('flasher','flasher/main.c', flash_payload_object, include_directories : inc,
+flasher = executable('flasher','flasher/main.c', 'src/peripherals.c', flash_payload_object, include_directories : inc,
 	c_args : ['-msoft-float']
 )
 
 run_target('load',
   command : [grmon,
-  '-uart', '/dev/ttyUSB1', '-baud', '921600', '-ulb',
+  '-uart', '/dev/ttyUSB2', '-baud', '921600', '-ulb',
   '-e', 'load  @0@; run;'.format(flasher.full_path())],
   depends : flasher
 )

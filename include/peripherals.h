@@ -25,16 +25,57 @@
 
 #include <stdint.h>
 
+typedef enum {APB_IO=1,AHB_MEM=2,AHB_IO=3}AMBA_space_t;
+
 typedef struct device_id
 {
 	int VID;
 	int PID;
 }device_id;
 
+typedef union {
+	 struct   {
+	    uint32_t Address:12;
+	    uint32_t _:2;
+	    uint32_t Prefetchable:1;
+	    uint32_t Cacheable:1;
+	    uint32_t MASK:12;
+	    uint32_t Type:4;
+	}FIELDS;
+	uint32_t Value;
+}AHB_BAR_t;
 
+typedef volatile struct  {
+     union {
+         struct   {
+            uint32_t VendorID:8;
+            uint32_t DeviceID:12;
+	    uint32_t _:2;
+            uint32_t Version:5;
+            uint32_t IRQ:5;
+        }FIELDS;
+        uint32_t Value;
+     }identification;
 
-const device_id OpenCoresSPW = {.VID=0x08, .PID=0x131};
-const device_id SPIMCTRL = {.VID=0x01, .PID=0x45};
+     uint32_t UserDefined[3];
+     AHB_BAR_t BAR[4];
+
+} AHB_PNP_entry_t;
+
+typedef volatile struct  {
+     union {
+         struct   {
+            uint32_t VendorID:8;
+            uint32_t DeviceID:12;
+	    uint32_t CT:2;
+            uint32_t Version:5;
+            uint32_t IRQ:5;
+        }FIELDS;
+        uint32_t Value;
+     }identification;
+     AHB_BAR_t BAR;
+} APB_PNP_entry_t;
+
 
 typedef volatile struct  {
      union {
@@ -154,5 +195,19 @@ typedef volatile struct  {
     }Transmit;
 
 } SPIMCTRL_t;
+
+
+uint32_t get_apb_base_addr(device_id devid, int count);
+uint32_t get_ahb_master_base_addr(device_id devid, int count, int BAR);
+uint32_t get_ahb_slave_base_addr(device_id devid, int count, int BAR);
+
+extern const device_id OpenCoresSPW;
+extern const device_id SPIMCTRL;
+extern const AHB_PNP_entry_t* AHB_Masters_PNP;
+
+
+
+
+
 
 #endif
