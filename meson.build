@@ -8,15 +8,21 @@ fw = executable('tg2FW','src/main.c', 'src/peripherals.c', include_directories :
 
 mkprom2 = find_program('mkprom2')
 objcopy = find_program('sparc-gaisler-elf-objcopy')
-ld = find_program('sparc-gaisler-elf-ld')
-gcc = find_program('sparc-gaisler-elf-gcc')
 grmon = find_program('grmon')
+make_flasher = find_program('flasher/make_flasher.py')
 
 prom = custom_target('TimeGen2FW.prom',
   input : fw,
   output : 'TimeGen2FW.prom',
   command : [mkprom2, '-duart', '0x80000100', '-baud', '115200', '-spimeas', '-v', '-msoft-float', '-nocomp', '-leon3', '-nosram',
   	'-sdram', '16', '-sdrambanks', '1', '-col', '8', '@INPUT@', '-o', '@OUTPUT@' ]
+)
+
+srec = custom_target('TimeGen2FW.srec',
+  input : fw,
+  output : 'TimeGen2FW.srec',
+  command : [objcopy, '-O', 'srec', '@INPUT@', '@OUTPUT@'
+  ]
 )
 
 flash_payload = custom_target('payload.bin',
@@ -26,15 +32,18 @@ flash_payload = custom_target('payload.bin',
   ]
 )
 
-flash_payload_object = custom_target('payload.o',
-  input : flash_payload,
-  output : 'payload.o',
-  command : [ld, '-r', '-b', 'binary', '@INPUT@', '-o', '@OUTPUT@'
+flash_srec = custom_target('prom.srec',
+  input : prom,
+  output : 'prom.srec',
+  command : [objcopy, '-O', 'srec', '@INPUT@', '@OUTPUT@'
   ]
 )
 
-flasher = executable('flasher','flasher/main.c', 'src/peripherals.c', flash_payload_object, include_directories : inc,
-	c_args : ['-msoft-float']
+flasher = custom_target('flasher',
+  input : flash_payload,
+  output : 'flasher',
+  command : [make_flasher, '--payload', '@INPUT@', '--output', '@OUTPUT@'
+  ]
 )
 
 run_target('load',
